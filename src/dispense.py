@@ -1,36 +1,35 @@
-
 class DispenseEvent:
-    """
-    Represents a single medication dispensing event for a patient.
+    # Rule 3: Example maximum daily doses per medication
+    MAX_DAILY_DOSES = {
+        "Aspirin": 4000,
+        "Advil": 1200,
+        "Tylenol": 4000
+    }
 
-    """
-
-    # TODO Task 3: Encode and enforce input constraints (e.g., valid dose, quantity, identifiers)
     def __init__(self, patient_id, medication, dose_mg, quantity):
-        """
-        Initialize a new DispenseEvent.
+        
+        # Rule 1: Dose must be a positive value
+        if dose_mg <= 0:
+            raise ValueError("Dose must be a positive value.")
+        
+        # Rule 2: Quantity must be a positive integer
+        if not isinstance(quantity, int) or quantity <= 0:
+            raise ValueError("Quantity must be a positive integer.")
+            
+        # Rule 3: Check against maximum allowable dose
+        if medication in self.MAX_DAILY_DOSES:
+            if dose_mg > self.MAX_DAILY_DOSES[medication]:
+                raise ValueError(f"Dose exceeds maximum allowable for {medication}.")
 
-        Args:
-            patient_id: Unique identifier for the patient receiving medication.
-            medication: Name or identifier of the medication being dispensed.
-            dose_mg: Dose per unit in milligrams. Must be a positive number.
-            quantity: Number of units dispensed. Must be a positive integer.
-
-        """
         self.patient_id = patient_id
         self.medication = medication
+        self.dose_mg = dose_mg
+        self.quantity = quantity
 
-    # TODO Task 4: Define and check system invariants 
-    def invariant_holds(existing_events, new_event):
-        """
-        Check whether adding a new dispense event preserves all system invariants.
+def invariant_holds(existing_events, new_event):
 
-        Args:
-            existing_events: Iterable of previously recorded DispenseEvent objects.
-            new_event: The proposed DispenseEvent to validate.
-
-        Returns:
-            bool: True if all invariants hold after adding new_event; False otherwise.
-            
-        """
-        pass
+    for event in existing_events:
+        if (event.patient_id == new_event.patient_id and 
+            event.medication == new_event.medication):
+            return False  # Invariant violated: duplicate found
+    return True
